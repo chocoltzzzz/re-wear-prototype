@@ -12,12 +12,13 @@ st.set_page_config(
 )
 
 # --- Data Dummy untuk Simulasi ---
+# Menambahkan URL gambar placeholder ke data dummy
 if 'items_for_sale' not in st.session_state:
     st.session_state.items_for_sale = [
-        {"id": 1, "nama": "Jaket Denim Vintage (L)", "deskripsi": "Kondisi: Good. Detail foto cacat minor ada di album.", "harga": 150000, "tipe": "Jual", "kualitas": "Good", "dampak": 2.5, "rating_penjual": 4.8},
-        {"id": 2, "nama": "Kemeja Flanel Merah", "deskripsi": "Barang Donasi (Gratis). Otomatis disalurkan ke panti asuhan.", "harga": 0, "tipe": "Donasi", "kualitas": "Like New", "dampak": 1.5, "rating_penjual": 5.0},
-        {"id": 3, "nama": "Sepatu Kanvas Putih (40)", "deskripsi": "Kondisi: Minor Defect. Ada noda kecil di sisi kiri.", "harga": 80000, "tipe": "Jual", "kualitas": "Minor Defect", "dampak": 3.0, "rating_penjual": 4.1},
-        {"id": 4, "nama": "Dress Musim Panas (M)", "deskripsi": "Kondisi: Like New. Baru dipakai sekali untuk foto.", "harga": 120000, "tipe": "Jual", "kualitas": "Like New", "dampak": 1.8, "rating_penjual": 4.9},
+        {"id": 1, "nama": "Jaket Denim Vintage (L)", "deskripsi": "Kondisi: Good. Detail foto cacat minor ada di album.", "harga": 150000, "tipe": "Jual", "kualitas": "Good", "dampak": 2.5, "rating_penjual": 4.8, "image_url": "https://placehold.co/300x400/79888A/FFFFFF/png?text=Jaket+Denim"},
+        {"id": 2, "nama": "Kemeja Flanel Merah", "deskripsi": "Barang Donasi (Gratis). Otomatis disalurkan ke panti asuhan.", "harga": 0, "tipe": "Donasi", "kualitas": "Like New", "dampak": 1.5, "rating_penjual": 5.0, "image_url": "https://placehold.co/300x400/961E34/FFFFFF/png?text=Kemeja+Flanel"},
+        {"id": 3, "nama": "Sepatu Kanvas Putih (40)", "deskripsi": "Kondisi: Minor Defect. Ada noda kecil di sisi kiri.", "harga": 80000, "tipe": "Jual", "kualitas": "Minor Defect", "dampak": 3.0, "rating_penjual": 4.1, "image_url": "https://placehold.co/300x400/F0F0F0/000000/png?text=Sepatu+Kanvas"},
+        {"id": 4, "nama": "Dress Musim Panas (M)", "deskripsi": "Kondisi: Like New. Baru dipakai sekali untuk foto.", "harga": 120000, "tipe": "Jual", "kualitas": "Like New", "dampak": 1.8, "rating_penjual": 4.9, "image_url": "https://placehold.co/300x400/D4A7B7/FFFFFF/png?text=Dress+Musim+Panas"},
     ]
 
 # Data Dampak Global (simulasi metrik)
@@ -45,6 +46,8 @@ def add_new_item(nama, deskripsi, harga, tipe, kualitas):
     """Menambahkan item baru ke daftar (simulasi)."""
     new_id = max(item['id'] for item in st.session_state.items_for_sale) + 1
     dampak = np.random.uniform(1.0, 5.0) # Dampak random
+    # Menambahkan gambar placeholder default untuk item baru
+    image_url = f"https://placehold.co/300x400/4C7C59/FFFFFF/png?text=Item+Baru+{new_id}"
     st.session_state.items_for_sale.append({
         "id": new_id,
         "nama": nama,
@@ -53,7 +56,8 @@ def add_new_item(nama, deskripsi, harga, tipe, kualitas):
         "tipe": tipe,
         "kualitas": kualitas,
         "dampak": round(dampak, 2),
-        "rating_penjual": round(np.random.uniform(4.0, 5.0), 1)
+        "rating_penjual": round(np.random.uniform(4.0, 5.0), 1),
+        "image_url": image_url
     })
     st.success(f"Item '{nama}' berhasil ditambahkan! Dampak lingkungan sudah mulai terhitung.")
     time.sleep(1)
@@ -104,6 +108,10 @@ if menu_selection == "Marketplace & Donasi":
         cols = st.columns(4)
         for i, row in items_df.iterrows():
             with cols[i % 4]:
+                
+                # Tambahkan Gambar
+                st.image(row['image_url'], caption=row['nama'], use_column_width=True)
+                
                 card_title = f"{row['nama']}"
                 
                 # Menentukan tampilan harga dan warna kotak berdasarkan tipe (Jual/Donasi)
@@ -118,16 +126,18 @@ if menu_selection == "Marketplace & Donasi":
                     button_label = "Beli / Tawar"
                     button_type = "primary"
 
+                # HILANGKAN BINTANG RATING DARI CARD BODY
                 card_body = f"""
                 **{harga_display}**
                 
                 Kualitas: **{row['kualitas']}** Dampak Poin: **{row['dampak']}** 🍃
                 
-                Penjual: ⭐ {row['rating_penjual']}
                 """
+                # Rating penjual dipindahkan ke bawah tombol jika diperlukan, atau dihilangkan.
                 
                 box_func(f"**{card_title}**\n\n{card_body}")
                 st.button(button_label, key=f"b_{row['id']}", type=button_type, help=row['deskripsi'])
+                st.caption(f"Penjual Rating: {row['rating_penjual']} ⭐") # Rating di bawah tombol
                     
     with tab2:
         st.subheader("Upload Pakaian Anda untuk Dijual atau Didonasikan")
@@ -270,7 +280,7 @@ elif menu_selection == "Sistem Kepercayaan & C2C":
     st.markdown(f"""
     - **Kualitas Dilaporkan:** `{sample_item['kualitas']}`
     - **Deskripsi Penjual:** `{sample_item['deskripsi']}`
-    - **Simulasi Bukti Foto:**  - *Wajib diupload*
+    - **Simulasi Bukti Foto:** - *Wajib diupload*
     """)
     
     st.subheader("2. Simulasi Transaksi (Jaminan Pengembalian)")
