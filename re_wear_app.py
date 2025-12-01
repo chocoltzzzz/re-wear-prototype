@@ -105,20 +105,29 @@ if menu_selection == "Marketplace & Donasi":
         for i, row in items_df.iterrows():
             with cols[i % 4]:
                 card_title = f"{row['nama']}"
+                
+                # Menentukan tampilan harga dan warna kotak berdasarkan tipe (Jual/Donasi)
+                if row['tipe'] == 'Donasi':
+                    harga_display = "**GRATIS / Donasi**"
+                    box_func = st.success # Warna hijau untuk donasi
+                    button_label = "Minta Donasi"
+                    button_type = "secondary"
+                else:
+                    harga_display = format_rupiah(row['harga'])
+                    box_func = st.info # Warna biru untuk dijual
+                    button_label = "Beli / Tawar"
+                    button_type = "primary"
+
                 card_body = f"""
-                **{format_rupiah(row['harga'])}**
+                **{harga_display}**
                 
                 Kualitas: **{row['kualitas']}** Dampak Poin: **{row['dampak']}** 🍃
                 
                 Penjual: ⭐ {row['rating_penjual']}
                 """
                 
-                if row['tipe'] == 'Donasi':
-                    st.success(f"**{card_title}**\n\n{card_body}")
-                    st.button("Minta Donasi", key=f"d{row['id']}", help=row['deskripsi'])
-                else:
-                    st.info(f"**{card_title}**\n\n{card_body}")
-                    st.button("Beli / Tawar", key=f"b{row['id']}", type="primary", help=row['deskripsi'])
+                box_func(f"**{card_title}**\n\n{card_body}")
+                st.button(button_label, key=f"b_{row['id']}", type=button_type, help=row['deskripsi'])
                     
     with tab2:
         st.subheader("Upload Pakaian Anda untuk Dijual atau Didonasikan")
