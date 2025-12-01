@@ -133,11 +133,11 @@ if menu_selection == "Marketplace & Donasi":
                 Kualitas: **{row['kualitas']}** Dampak Poin: **{row['dampak']}** 🍃
                 
                 """
-                # Rating penjual dipindahkan ke bawah tombol jika diperlukan, atau dihilangkan.
+                # Rating penjual dipindahkan ke caption di bawah tombol
                 
                 box_func(f"**{card_title}**\n\n{card_body}")
                 st.button(button_label, key=f"b_{row['id']}", type=button_type, help=row['deskripsi'])
-                st.caption(f"Penjual Rating: {row['rating_penjual']} ⭐") # Rating di bawah tombol
+                st.caption(f"Penjual Rating: {row['rating_penjual']}") # ⭐ dihapus
                     
     with tab2:
         st.subheader("Upload Pakaian Anda untuk Dijual atau Didonasikan")
